@@ -24,13 +24,13 @@ const ParticlesBackground = () => {
                             }
                         },
                         color: {
-                            value: '#2b1055',
+                            value: '#fffffff',
                         },
                         opacity: {
                             value: 0.5,
                         },
                         size: {
-                            value: 3,
+                            value: 1,
                         },
                         move: {
                             enable: true,
@@ -38,13 +38,13 @@ const ParticlesBackground = () => {
                         },
                         links: {
                             enable: true,
-                            color: '#2b1055',
+                            color: '#ffffffff',
                             opacity: 0.5,
                             distance: 150,
                             width: 1,
                             shadow: {
                                 enable: true,
-                                color: '#2b1055',
+                                color: '#ffffffff',
                                 blur: 5,
                             },
                         },
