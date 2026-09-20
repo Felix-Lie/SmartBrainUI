@@ -10,8 +10,9 @@ import ParticlesBackground from './components/ParticlesBackground/ParticlesBackg
 
 import './App.css';
 
-const client = new InferenceClient(import.meta.env.VITE_HF_TOKEN);
+console.log( import.meta.env.VITE_HF_TOKEN ? 'Token loaded' : 'Token missing' );
 
+const client = new InferenceClient(import.meta.env.VITE_HF_TOKEN);
 
 class App extends Component {
   constructor() {
@@ -24,6 +25,39 @@ class App extends Component {
     };
   }
 
+  calculateFaceLocation = (data) => {
+    const hfPerson = data.find(item => item.label === 'person').box;
+    const image = document.getElementById('inputimage'); 
+    const width = Number(image.width); 
+    const height = Number(image.height); 
+    const naturalWidth = image.naturalWidth;
+    const naturalHeight = image.naturalHeight;
+
+    console.log('Displayed:', image.width, image.height);
+    console.log('Natural:', image.naturalWidth, image.naturalHeight);
+    console.log('HF box:', hfPerson);
+
+    const scaleX = width / naturalWidth;
+    const scaleY = height / naturalHeight;
+    return { 
+      // leftCol: hfPerson.xmin, 
+      // topRow: hfPerson.ymin, 
+      // rightCol: width - hfPerson.xmax, 
+      // bottomRow: height - hfPerson.ymax, 
+      leftCol: hfPerson.xmin * scaleX,
+      topRow: hfPerson.ymin * scaleY,
+      rightCol: width - (hfPerson.xmax * scaleX),
+      bottomRow: height - (hfPerson.ymax * scaleY),
+    };
+  };
+
+  displayFaceBox = (box) => {
+  console.log(box);
+  this.setState({
+      box: box,
+    });
+  };
+
   onInputChange = (event) => {
     this.setState({
       input: event.target.value,
@@ -31,24 +65,35 @@ class App extends Component {
   }
 
   onButtonSubmit = async () => { 
-    console.log('click');
+    console.log('1. click');
 
     this.setState({ 
       imageUrl: this.state.input, 
     });
 
     try { 
+      console.log('2 fetching image');
+
       const image = await fetch(this.state.input); 
       const imageBlob = await image.blob(); 
+
+      console.log('3. Image Fetched')
       
       const response = await client.objectDetection({ 
         model: 'facebook/detr-resnet-50', 
         data: imageBlob, 
       }); 
       
-      console.log(response); 
+      console.log('4. HF response:', response); 
+      const box = this.calculateFaceLocation(response);
+
+      console.log('5. calculated box:', box);
+
+      this.displayFaceBox(box);
+
+      console.log('6. displayFaceBox done');
     } catch (err) { 
-      console.log(err); 
+      console.log('ERROR:',err); 
     }
   }
 
@@ -65,6 +110,7 @@ class App extends Component {
         />
         <FaceRecognition
           imageUrl={this.state.imageUrl} 
+          box={this.state.box}
         />
       </div>
     )
