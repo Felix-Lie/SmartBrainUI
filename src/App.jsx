@@ -37,6 +37,7 @@ class App extends Component {
   }
 
   loadUser = (data) => {
+    console.log('LOAD USER DATA:', data);
     this.setState({
       user: {
         id: data.id,
@@ -120,10 +121,31 @@ class App extends Component {
       this.displayFaceBox(box);
 
       console.log('6. displayFaceBox done');
+
+      fetch('http://localhost:3000/image', { 
+        method: 'put', 
+        headers: { 
+          'Content-Type': 'application/json' 
+        }, 
+        body: JSON.stringify({ 
+          id: this.state.user.id 
+        }) 
+      })
+      .then(response => response.json()) 
+      .then(count => { 
+        console.log('7 eentries count:', count);
+        this.setState({
+          user: {
+            ...this.state.user,
+            entries: count
+          }
+        });
+      }).catch(console.log);
     } catch (err) { 
       console.log('ERROR:',err); 
     }
   }
+ 
 
   onRouteChange = (route) => {
     if(route === 'signout'){
@@ -143,7 +165,10 @@ class App extends Component {
         { route === 'home' 
           ? <div> 
               <Logo />
-              <Rank />
+              <Rank 
+                name={this.state.user.name}
+                entries={this.state.user.entries}
+              />
               <ImageLinkForm 
                 onInputChange={this.onInputChange} 
                 onButtonSubmit={this.onButtonSubmit}
@@ -154,8 +179,14 @@ class App extends Component {
               />
             </div>
           : ( route === 'signin'
-            ? <SignIn onRouteChange={this.onRouteChange}/> 
-            : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/> 
+            ? <SignIn 
+                onRouteChange={this.onRouteChange}
+                loadUser={this.loadUser}
+              /> 
+            : <Register 
+                onRouteChange={this.onRouteChange} 
+                loadUser={this.loadUser} 
+              /> 
           )
         }
       </div>     
