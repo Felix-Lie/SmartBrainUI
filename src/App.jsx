@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import { InferenceClient } from '@huggingface/inference';
-
 import Navigation from './components/Navigation/Navigation';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import Logo from './components/Logo/Logo';
@@ -9,12 +7,7 @@ import Rank from './components/Rank/Rank';
 import SignIn from './components/SignIn/SignIn';
 import Register from './components/Register/Register';
 import ParticlesBackground from './components/ParticlesBackground/ParticlesBackground';
-
 import './App.css';
-
-console.log( import.meta.env.VITE_HF_TOKEN ? 'Token loaded' : 'Token missing' );
-
-const client = new InferenceClient(import.meta.env.VITE_HF_TOKEN);
 
 const initialState = {
   input: '',
@@ -95,58 +88,93 @@ class App extends Component {
   });
   }
 
-  onButtonSubmit = async () => { 
-    console.log('1. click');
+  // onButtonSubmit = async () => { 
+  //   console.log('1. click');
 
-    this.setState({ 
-      imageUrl: this.state.input, 
+  //   this.setState({ 
+  //     imageUrl: this.state.input, 
+  //   });
+
+  //   try { 
+  //     console.log('2 fetching image');
+
+  //     const image = await fetch(this.state.input); 
+  //     const imageBlob = await image.blob(); 
+
+  //     console.log('3. Image Fetched')
+      
+  //     const response = await client.objectDetection({ 
+  //       model: 'facebook/detr-resnet-50', 
+  //       data: imageBlob, 
+  //     }); 
+      
+  //     console.log('4. HF response:', response); 
+  //     const box = this.calculateFaceLocation(response);
+
+  //     console.log('5. calculated box:', box);
+
+  //     this.displayFaceBox(box);
+
+  //     console.log('6. displayFaceBox done');
+
+  //     fetch('http://localhost:3000/image', { 
+  //       method: 'put', 
+  //       headers: { 
+  //         'Content-Type': 'application/json' 
+  //       }, 
+  //       body: JSON.stringify({ 
+  //         id: this.state.user.id 
+  //       }) 
+  //     })
+  //     .then(response => response.json()) 
+  //     .then(count => { 
+  //       console.log('7 eentries count:', count);
+  //       this.setState({
+  //         user: {
+  //           ...this.state.user,
+  //           entries: count
+  //         }
+  //       });
+  //     }).catch(console.log);
+  //   } catch (err) { 
+  //     console.log('ERROR:',err); 
+  //   }
+  // }
+
+  onButtonSubmit = async () => {
+  console.log('1. click');
+  this.setState({
+    imageUrl: this.state.input,
+  });
+  try {
+    console.log('2. sending image URL to backend');
+    const response = await fetch('http://localhost:3000/image', {
+      method: 'put',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: this.state.user.id,
+        imageUrl: this.state.input,
+      }),
     });
-
-    try { 
-      console.log('2 fetching image');
-
-      const image = await fetch(this.state.input); 
-      const imageBlob = await image.blob(); 
-
-      console.log('3. Image Fetched')
-      
-      const response = await client.objectDetection({ 
-        model: 'facebook/detr-resnet-50', 
-        data: imageBlob, 
-      }); 
-      
-      console.log('4. HF response:', response); 
-      const box = this.calculateFaceLocation(response);
-
-      console.log('5. calculated box:', box);
-
-      this.displayFaceBox(box);
-
-      console.log('6. displayFaceBox done');
-
-      fetch('http://localhost:3000/image', { 
-        method: 'put', 
-        headers: { 
-          'Content-Type': 'application/json' 
-        }, 
-        body: JSON.stringify({ 
-          id: this.state.user.id 
-        }) 
-      })
-      .then(response => response.json()) 
-      .then(count => { 
-        console.log('7 eentries count:', count);
-        this.setState({
-          user: {
-            ...this.state.user,
-            entries: count
-          }
-        });
-      }).catch(console.log);
-    } catch (err) { 
-      console.log('ERROR:',err); 
-    }
+    const data = await response.json();
+    console.log('3. Backend response:', data);
+    const box = this.calculateFaceLocation(data.detections);
+    console.log('4. calculated box:', box);
+    this.displayFaceBox(box);
+    console.log('5. displayFaceBox done');
+    this.setState({
+      user: {
+        ...this.state.user,
+        entries: data.entries,
+      },
+    });
+    console.log('6. entries updated');
+  } catch (err) {
+    console.log('ERROR:', err);
   }
+};
  
 
   onRouteChange = (route) => {
