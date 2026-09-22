@@ -29,11 +29,11 @@ class SignIn extends React.Component {
             })
         })
         .then(response => response.json())
-        .then(data => {
-            console.log('SIGN IN RESPONSE:', data);
-            if (data) {
+        .then(user => {
+            console.log('SIGN IN RESPONSE:', user);
+            if (user.id) {
                 console.log('SIGN IN SUCCESS');
-                this.props.loadUser(data);
+                this.props.loadUser(user);
                 this.props.onRouteChange('home');
             }
         })
