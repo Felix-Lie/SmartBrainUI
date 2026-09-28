@@ -43,12 +43,6 @@ class App extends Component {
     }})
   }
 
-  // componentDidMount() {
-  //   fetch('http://localhost:3000/')
-  //     .then(response => response.json())
-  //     .then(console.log)
-  // }
-
   calculateFaceLocation = (data) => {
     const hfPerson = data.find(item => item.label === 'person').box;
     const image = document.getElementById('inputimage'); 
@@ -63,11 +57,7 @@ class App extends Component {
 
     const scaleX = width / naturalWidth;
     const scaleY = height / naturalHeight;
-    return { 
-      // leftCol: hfPerson.xmin, 
-      // topRow: hfPerson.ymin, 
-      // rightCol: width - hfPerson.xmax, 
-      // bottomRow: height - hfPerson.ymax, 
+    return {  
       leftCol: hfPerson.xmin * scaleX,
       topRow: hfPerson.ymin * scaleY,
       rightCol: width - (hfPerson.xmax * scaleX),
@@ -87,59 +77,6 @@ class App extends Component {
       input: event.target.value,
   });
   }
-
-  // onButtonSubmit = async () => { 
-  //   console.log('1. click');
-
-  //   this.setState({ 
-  //     imageUrl: this.state.input, 
-  //   });
-
-  //   try { 
-  //     console.log('2 fetching image');
-
-  //     const image = await fetch(this.state.input); 
-  //     const imageBlob = await image.blob(); 
-
-  //     console.log('3. Image Fetched')
-      
-  //     const response = await client.objectDetection({ 
-  //       model: 'facebook/detr-resnet-50', 
-  //       data: imageBlob, 
-  //     }); 
-      
-  //     console.log('4. HF response:', response); 
-  //     const box = this.calculateFaceLocation(response);
-
-  //     console.log('5. calculated box:', box);
-
-  //     this.displayFaceBox(box);
-
-  //     console.log('6. displayFaceBox done');
-
-  //     fetch('http://localhost:3000/image', { 
-  //       method: 'put', 
-  //       headers: { 
-  //         'Content-Type': 'application/json' 
-  //       }, 
-  //       body: JSON.stringify({ 
-  //         id: this.state.user.id 
-  //       }) 
-  //     })
-  //     .then(response => response.json()) 
-  //     .then(count => { 
-  //       console.log('7 eentries count:', count);
-  //       this.setState({
-  //         user: {
-  //           ...this.state.user,
-  //           entries: count
-  //         }
-  //       });
-  //     }).catch(console.log);
-  //   } catch (err) { 
-  //     console.log('ERROR:',err); 
-  //   }
-  // }
 
   onButtonSubmit = async () => {
   console.log('1. click');
